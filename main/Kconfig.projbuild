@@ -1,0 +1,7 @@
+menu "LOT Project"
+
+    rsource "../src/HW/Kconfig.in"
+    rsource "../src/APP/Kconfig.in"
+    rsource "../src/SYSTEM/Kconfig.in"
+
+endmenu

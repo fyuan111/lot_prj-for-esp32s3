@@ -1,0 +1,35 @@
+menu "Wi-Fi"
+
+config LOT_WIFI_SSID
+    string "Wi-Fi SSID"
+    default "SSID"
+    help
+        Wi-Fi SSID for STA mode.
+
+config LOT_WIFI_PASSWORD
+    string "Wi-Fi Password"
+    default "PASSWORD"
+    help
+        Wi-Fi password for STA mode.
+
+config LOT_WIFI_MAX_RETRY
+    int "Wi-Fi max retry count"
+    range 1 50
+    default 10
+    help
+        Maximum retries before Wi-Fi connect is treated as failed.
+
+config LOT_WIFI_CONNECT_TIMEOUT_MS
+    int "Wi-Fi connect timeout (ms)"
+    range 1000 120000
+    default 20000
+    help
+        Timeout for waiting connection in app_main.
+
+config LOT_WIFI_POWERSAVE
+    bool "Enable Wi-Fi power save mode"
+    default n
+    help
+        Enable WIFI_PS_MIN_MODEM after station start.
+
+endmenu

@@ -1,0 +1,10 @@
+menu "LVGL"
+
+config LOT_LVGL_ENABLE
+    bool "Enable LVGL UI"
+    depends on LOT_LCD_ENABLE
+    default y
+    help
+        Initialize LVGL and create demo UI after LCD init.
+
+endmenu

@@ -1,0 +1,187 @@
+menu "LCD (ILI9341 + XPT2046)"
+
+config LOT_LCD_ENABLE
+    bool "Enable SPI LCD"
+    default y
+    help
+        Initialize ILI9341 LCD on boot.
+
+config LOT_LCD_PIXEL_CLOCK_HZ
+    int "LCD SPI clock (Hz)"
+    depends on LOT_LCD_ENABLE
+    range 1000000 40000000
+    default 20000000
+    help
+        SPI pixel clock for ILI9341 panel IO.
+
+config LOT_LCD_H_RES
+    int "LCD horizontal resolution"
+    depends on LOT_LCD_ENABLE
+    range 1 1024
+    default 240
+
+config LOT_LCD_V_RES
+    int "LCD vertical resolution"
+    depends on LOT_LCD_ENABLE
+    range 1 1024
+    default 320
+
+config LOT_LCD_SPI_SCLK_PIN
+    int "LCD SPI SCLK GPIO"
+    depends on LOT_LCD_ENABLE
+    range -1 48
+    default 18
+
+config LOT_LCD_SPI_MOSI_PIN
+    int "LCD SPI MOSI GPIO"
+    depends on LOT_LCD_ENABLE
+    range -1 48
+    default 19
+
+config LOT_LCD_SPI_MISO_PIN
+    int "LCD SPI MISO GPIO"
+    depends on LOT_LCD_ENABLE
+    range -1 48
+    default 21
+
+config LOT_LCD_CS_PIN
+    int "LCD CS GPIO"
+    depends on LOT_LCD_ENABLE
+    range -1 48
+    default 4
+
+config LOT_LCD_DC_PIN
+    int "LCD DC GPIO"
+    depends on LOT_LCD_ENABLE
+    range -1 48
+    default 5
+
+config LOT_LCD_RST_PIN
+    int "LCD RST GPIO"
+    depends on LOT_LCD_ENABLE
+    range -1 48
+    default 3
+
+config LOT_LCD_BK_LIGHT_PIN
+    int "LCD Backlight GPIO (-1 to disable)"
+    depends on LOT_LCD_ENABLE
+    range -1 48
+    default 2
+
+config LOT_LCD_BK_LIGHT_ON_LEVEL
+    int "LCD Backlight ON level"
+    depends on LOT_LCD_ENABLE
+    range 0 1
+    default 1
+
+config LOT_LCD_SWAP_XY
+    bool "LCD swap XY"
+    depends on LOT_LCD_ENABLE
+    default n
+
+config LOT_LCD_MIRROR_X
+    bool "LCD mirror X"
+    depends on LOT_LCD_ENABLE
+    default y
+
+config LOT_LCD_MIRROR_Y
+    bool "LCD mirror Y"
+    depends on LOT_LCD_ENABLE
+    default n
+
+config LOT_TOUCH_ENABLE
+    bool "Enable XPT2046 touch"
+    depends on LOT_LCD_ENABLE
+    default y
+    help
+        Read touch coordinates from XPT2046 over SPI.
+
+config LOT_TOUCH_CS_PIN
+    int "Touch CS GPIO"
+    depends on LOT_TOUCH_ENABLE
+    range -1 48
+    default 15
+
+config LOT_TOUCH_USE_SEPARATE_SPI
+    bool "Touch uses separate SPI bus"
+    depends on LOT_TOUCH_ENABLE
+    default n
+    help
+        Enable this when XPT2046 is not wired to the same SPI bus as LCD.
+
+choice LOT_TOUCH_SPI_HOST
+    prompt "Touch SPI host"
+    depends on LOT_TOUCH_ENABLE && LOT_TOUCH_USE_SEPARATE_SPI
+    default LOT_TOUCH_SPI_HOST_SPI3
+    help
+        Select SPI host used by the touch controller when using a separate bus.
+
+config LOT_TOUCH_SPI_HOST_SPI2
+    bool "SPI2_HOST"
+
+config LOT_TOUCH_SPI_HOST_SPI3
+    bool "SPI3_HOST"
+
+endchoice
+
+config LOT_TOUCH_SPI_SCLK_PIN
+    int "Touch SPI SCLK GPIO"
+    depends on LOT_TOUCH_ENABLE && LOT_TOUCH_USE_SEPARATE_SPI
+    range -1 48
+    default 12
+
+config LOT_TOUCH_SPI_MOSI_PIN
+    int "Touch SPI MOSI GPIO"
+    depends on LOT_TOUCH_ENABLE && LOT_TOUCH_USE_SEPARATE_SPI
+    range -1 48
+    default 11
+
+config LOT_TOUCH_SPI_MISO_PIN
+    int "Touch SPI MISO GPIO"
+    depends on LOT_TOUCH_ENABLE && LOT_TOUCH_USE_SEPARATE_SPI
+    range -1 48
+    default 13
+
+config LOT_TOUCH_INT_PIN
+    int "Touch INT GPIO (-1 to disable)"
+    depends on LOT_TOUCH_ENABLE
+    range -1 48
+    default -1
+    help
+        XPT2046 PENIRQ pin. Set -1 to use polling mode.
+
+config LOT_TOUCH_INT_ACTIVE_LEVEL
+    int "Touch INT active level"
+    depends on LOT_TOUCH_ENABLE
+    range 0 1
+    default 0
+    help
+        XPT2046 usually uses active-low PENIRQ, keep default 0.
+
+config LOT_TOUCH_SWAP_XY
+    bool "Touch swap XY"
+    depends on LOT_TOUCH_ENABLE
+    default n
+
+config LOT_TOUCH_MIRROR_X
+    bool "Touch mirror X"
+    depends on LOT_TOUCH_ENABLE
+    default n
+
+config LOT_TOUCH_MIRROR_Y
+    bool "Touch mirror Y"
+    depends on LOT_TOUCH_ENABLE
+    default n
+
+config LOT_TOUCH_LOG_INTERVAL_MS
+    int "Touch log interval (ms)"
+    depends on LOT_TOUCH_ENABLE
+    range 20 2000
+    default 120
+    help
+        Minimum interval for printing touch coordinates.
+
+endmenu
+
+
+

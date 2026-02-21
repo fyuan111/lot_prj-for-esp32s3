@@ -1,0 +1,7 @@
+menu "System"
+
+    rsource "launch/Kconfig.in"
+    # rsource "power/Kconfig.in"
+    # rsource "littlefs/Kconfig.in"
+
+endmenu
