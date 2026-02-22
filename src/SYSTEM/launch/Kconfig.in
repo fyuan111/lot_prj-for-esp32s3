@@ -1,11 +1,5 @@
 menu "Launch"
 
-config LOT_LAUNCH_MAX_APPS
-    int "Max launch app count"
-    range 1 64
-    default 16
-    help
-        Maximum number of app init entries that can be registered
-        before launch_entry() executes them.
+comment "Compile-time launch scan is enabled (no runtime launch table)."
 
 endmenu

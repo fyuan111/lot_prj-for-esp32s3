@@ -1,0 +1,28 @@
+menu "LittleFS"
+
+config LOT_LITTLEFS_ENABLE
+    bool "Enable LittleFS mount"
+    default y
+    help
+        Mount LittleFS partition at boot.
+
+config LOT_LITTLEFS_BASE_PATH
+    string "LittleFS base path"
+    depends on LOT_LITTLEFS_ENABLE
+    default "/lfs"
+    help
+        VFS mount path for LittleFS.
+
+config LOT_LITTLEFS_PARTITION_LABEL
+    string "LittleFS partition label"
+    depends on LOT_LITTLEFS_ENABLE
+    default "storage"
+    help
+        Partition label from partitions.csv.
+
+config LOT_LITTLEFS_FORMAT_IF_FAIL
+    bool "Format when mount failed"
+    depends on LOT_LITTLEFS_ENABLE
+    default y
+
+endmenu

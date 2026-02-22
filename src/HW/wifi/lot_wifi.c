@@ -94,3 +94,5 @@ esp_err_t lot_wifi_init_and_wait_connected(void)
     ESP_LOGE(TAG, "wifi connect timeout");
     return ESP_ERR_TIMEOUT;
 }
+
+launch(5,lot_wifi_init_and_wait_connected);

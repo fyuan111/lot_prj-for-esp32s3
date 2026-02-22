@@ -7,4 +7,22 @@ config LOT_LVGL_ENABLE
     help
         Initialize LVGL and create demo UI after LCD init.
 
+config LOT_LVGL_MAX_REFRESH_HZ
+    int "UI max refresh rate (Hz)"
+    depends on LOT_LVGL_ENABLE
+    range 1 120
+    default 33
+    help
+        Hardware-limited maximum refresh rate. Runtime API will reject values
+        above this limit.
+
+config LOT_LVGL_REFRESH_HZ
+    int "UI refresh rate (Hz)"
+    depends on LOT_LVGL_ENABLE
+    range 1 LOT_LVGL_MAX_REFRESH_HZ
+    default 10
+    help
+        Refresh rate for lot_ui_refresh() timer. Higher value gives smoother UI
+        updates and higher CPU usage.
+
 endmenu

@@ -46,6 +46,7 @@ typedef _Atomic(uint32_t) lot_time_atomic_t;
 /* Global atomic time variable */
 extern lot_time_atomic_t g_lot_time;
 
+esp_err_t lot_time_main(void);
 esp_err_t lot_time_init(void);
 lot_time_t lot_time(void);
 

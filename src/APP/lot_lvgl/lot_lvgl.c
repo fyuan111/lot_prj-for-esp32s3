@@ -3,15 +3,91 @@
 #include "esp_lcd_touch.h"
 #include "esp_lvgl_port.h"
 #include "lvgl.h"
+#include <stdatomic.h>
 
 #include "lot_lcd.h"
 #include "lot_lvgl.h"
-#include "lot_ui.h"
+#include "disp_sets.h"
 
 static const char *TAG = "lot_lvgl";
 
+#ifdef CONFIG_LOT_LVGL_REFRESH_HZ
+#define LOT_LVGL_REFRESH_HZ_DEFAULT CONFIG_LOT_LVGL_REFRESH_HZ
+#else
+#define LOT_LVGL_REFRESH_HZ_DEFAULT 10
+#endif
+
+#ifdef CONFIG_LOT_LVGL_MAX_REFRESH_HZ
+#define LOT_LVGL_MAX_REFRESH_HZ_DEFAULT CONFIG_LOT_LVGL_MAX_REFRESH_HZ
+#else
+#define LOT_LVGL_MAX_REFRESH_HZ_DEFAULT 33
+#endif
+
 static esp_lcd_touch_handle_t s_touch = NULL;
 static uint32_t s_last_touch_log_ms = 0;
+static lv_timer_t *s_ui_refresh_timer = NULL;
+static uint32_t s_ui_refresh_hz = LOT_LVGL_REFRESH_HZ_DEFAULT;
+static const ui_impl_t *s_current_ui = NULL;
+static _Atomic uint32_t s_pending_events;
+
+uint32_t lot_lvgl_get_max_refresh_hz(void)
+{
+    return LOT_LVGL_MAX_REFRESH_HZ_DEFAULT;
+}
+
+static uint32_t ui_refresh_period_ms_from_hz(uint32_t hz)
+{
+    if (hz == 0) {
+        return 100;
+    }
+    uint32_t period_ms = 1000 / hz;
+    return (period_ms == 0) ? 1 : period_ms;
+}
+
+uint32_t lot_lvgl_get_refresh_hz(void)
+{
+    return s_ui_refresh_hz;
+}
+
+esp_err_t lot_lvgl_set_refresh_hz(uint32_t hz)
+{
+    if (hz < 1 || hz > LOT_LVGL_MAX_REFRESH_HZ_DEFAULT) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    s_ui_refresh_hz = hz;
+    if (s_ui_refresh_timer == NULL) {
+        return ESP_OK;
+    }
+
+    lvgl_port_lock(0);
+    lv_timer_set_period(s_ui_refresh_timer, ui_refresh_period_ms_from_hz(s_ui_refresh_hz));
+    lvgl_port_unlock();
+    ESP_LOGI(TAG, "ui refresh set to %lu Hz", (unsigned long)s_ui_refresh_hz);
+    return ESP_OK;
+}
+
+esp_err_t lot_lvgl_emit_event_bits(uint32_t event_bits)
+{
+    if (event_bits == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    atomic_fetch_or(&s_pending_events, event_bits);
+    if (s_ui_refresh_timer != NULL) {
+        (void)lvgl_port_task_wake(LVGL_PORT_EVENT_USER, NULL);
+    }
+    return ESP_OK;
+}
+
+esp_err_t lot_lvgl_emit_event_id(uint8_t event_id)
+{
+    if (event_id >= UI_EVT_ID_MAX) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    return lot_lvgl_emit_event_bits(UI_EVT_BIT(event_id));
+}
+
 
 static void touch_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
 {
@@ -35,8 +111,25 @@ static void touch_read_cb(lv_indev_t *indev, lv_indev_data_t *data)
             ESP_LOGI(TAG, "touch x=%u y=%u", point_data[0].x, point_data[0].y);
             s_last_touch_log_ms = now;
         }
+        (void)lot_lvgl_emit_event_id(UI_EVT_ID_TOUCH);
     } else {
         data->state = LV_INDEV_STATE_RELEASED;
+    }
+}
+
+static void ui_refresh_timer_cb(lv_timer_t *timer)
+{
+    (void)timer;
+    if (s_current_ui == NULL || s_current_ui->refresh == NULL) {
+        return;
+    }
+
+    uint32_t events = atomic_exchange(&s_pending_events, 0);
+    bool event_match = (s_current_ui->event_mask != 0) &&
+                       ((events & s_current_ui->event_mask) != 0);
+
+    if (s_current_ui->refresh_mode == UI_REFRESH_PERIODIC || event_match) {
+        s_current_ui->refresh();
     }
 }
 
@@ -95,9 +188,46 @@ esp_err_t lot_lvgl_start(void)
 
     /* UI */
     lvgl_port_lock(0);
-    lot_ui_init();
+    if (ui_table_count == 0) {
+        lvgl_port_unlock();
+        ESP_LOGE(TAG, "ui_table is empty");
+        return ESP_FAIL;
+    }
+    s_current_ui = &ui_table[0];
+    if (s_current_ui->show != NULL) {
+        s_current_ui->show();
+    }
+    if (s_current_ui->refresh_mode == UI_REFRESH_PERIODIC && s_current_ui->refresh_hz > 0) {
+        s_ui_refresh_hz = s_current_ui->refresh_hz;
+    }
+    if (s_ui_refresh_hz > LOT_LVGL_MAX_REFRESH_HZ_DEFAULT) {
+        s_ui_refresh_hz = LOT_LVGL_MAX_REFRESH_HZ_DEFAULT;
+    }
+    if (s_ui_refresh_timer != NULL) {
+        lv_timer_delete(s_ui_refresh_timer);
+    }
+    s_ui_refresh_timer = lv_timer_create(ui_refresh_timer_cb, ui_refresh_period_ms_from_hz(s_ui_refresh_hz), NULL);
+    if (s_ui_refresh_timer == NULL) {
+        lvgl_port_unlock();
+        ESP_LOGE(TAG, "create ui refresh timer failed");
+        return ESP_FAIL;
+    }
     lvgl_port_unlock();
 
-    ESP_LOGI(TAG, "LVGL started");
+    ESP_LOGI(TAG, "LVGL started, ui refresh=%lu Hz (max=%lu Hz)",
+             (unsigned long)s_ui_refresh_hz,
+             (unsigned long)LOT_LVGL_MAX_REFRESH_HZ_DEFAULT);
     return ESP_OK;
 }
+
+
+esp_err_t lot_lvgl_main(void)
+{
+#if CONFIG_LOT_LVGL_ENABLE
+    return lot_lvgl_start();
+#else
+    return ESP_OK;
+#endif
+}
+
+launch(20, lot_lvgl_main);

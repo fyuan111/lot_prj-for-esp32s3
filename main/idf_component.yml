@@ -2,3 +2,4 @@ dependencies:
   esp_lcd_ili9341: ^1.0
   atanisoft/esp_lcd_touch_xpt2046: 1.0.5
   esp_lvgl_port: ^2
+  joltwallet/littlefs: "~=1.20.0"

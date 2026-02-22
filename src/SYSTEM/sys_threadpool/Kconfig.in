@@ -1,0 +1,42 @@
+menu "System ThreadPool"
+
+config LOT_THREADPOOL_ENABLE
+    bool "Enable threadpool module"
+    default y
+
+config LOT_THREADPOOL_DEFAULT_WORKERS
+    int "Default pool worker count"
+    range 1 8
+    default 2
+    depends on LOT_THREADPOOL_ENABLE
+
+config LOT_THREADPOOL_DEFAULT_QUEUE_LEN
+    int "Default pool queue length"
+    range 1 128
+    default 16
+    depends on LOT_THREADPOOL_ENABLE
+
+config LOT_THREADPOOL_DEFAULT_STACK_SIZE
+    int "Default worker stack size"
+    range 2048 16384
+    default 4096
+    depends on LOT_THREADPOOL_ENABLE
+
+config LOT_THREADPOOL_DEFAULT_TASK_PRIORITY
+    int "Default worker task priority"
+    range 1 24
+    default 5
+    depends on LOT_THREADPOOL_ENABLE
+
+config LOT_THREADPOOL_DEFAULT_CORE_ID
+    int "Default worker core id (-1 means no pin)"
+    range -1 1
+    default -1
+    depends on LOT_THREADPOOL_ENABLE
+
+config LOT_THREADPOOL_AUTO_START
+    bool "Auto-create default threadpool in boot launch"
+    default n
+    depends on LOT_THREADPOOL_ENABLE
+
+endmenu

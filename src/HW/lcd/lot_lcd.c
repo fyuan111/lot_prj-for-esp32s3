@@ -356,6 +356,15 @@ esp_err_t lot_lcd_init(void)
     return ESP_OK;
 }
 
+esp_err_t lot_lcd_main(void)
+{
+#if CONFIG_LOT_LCD_ENABLE
+    return lot_lcd_init();
+#else
+    return ESP_OK;
+#endif
+}
+
 esp_lcd_panel_io_handle_t lot_lcd_get_io_handle(void)
 {
     return s_io;
@@ -375,3 +384,4 @@ esp_lcd_touch_handle_t lot_lcd_get_touch_handle(void)
 #endif
 }
 
+launch(10, lot_lcd_main);

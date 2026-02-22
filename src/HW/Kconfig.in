@@ -2,6 +2,6 @@ menu "Hardware"
 
     rsource "wifi/Kconfig.in"
     rsource "lcd/Kconfig.in"
-    # rsource "ble/Kconfig.in"
+    rsource "ble/Kconfig.in"
 
 endmenu

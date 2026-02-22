@@ -1,0 +1,18 @@
+menu "BLE"
+
+config LOT_BLE_ENABLE
+    bool "Enable BLE peripheral"
+    default y
+
+config LOT_BLE_DEVICE_NAME
+    string "BLE device name"
+    default "LOT-ESP32S3"
+    depends on LOT_BLE_ENABLE
+
+config LOT_BLE_LOCAL_PRIO
+    int "BLE local launch priority in HW layer"
+    range 0 99
+    default 30
+    depends on LOT_BLE_ENABLE
+
+endmenu

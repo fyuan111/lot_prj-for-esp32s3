@@ -1,10 +1,9 @@
 #include "lvgl.h"
 
-#include "lot_ui.h"
+#include "Homepage.h"
 #include "time/time.h"
 
 static lv_obj_t *s_time_label = NULL;
-static lv_timer_t *s_time_timer = NULL;
 
 static void ui_update_time_label(void)
 {
@@ -22,13 +21,12 @@ static void ui_update_time_label(void)
     lv_label_set_text(s_time_label, buf);
 }
 
-static void ui_time_timer_cb(lv_timer_t *timer)
+void homepage_refresh(void) // Dynamically refresh
 {
-    (void)timer;
     ui_update_time_label();
 }
 
-void lot_ui_init(void)
+void homepage_show(void) // Statically show
 {
     lv_obj_t *screen = lv_screen_active();
     lv_obj_clean(screen);
@@ -40,9 +38,4 @@ void lot_ui_init(void)
     s_time_label = lv_label_create(screen);
     lv_obj_align(s_time_label, LV_ALIGN_CENTER, 0, 0);
     ui_update_time_label();
-
-    if (s_time_timer != NULL) {
-        lv_timer_delete(s_time_timer);
-    }
-    s_time_timer = lv_timer_create(ui_time_timer_cb, 100, NULL);
 }

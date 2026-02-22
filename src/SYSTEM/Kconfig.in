@@ -1,7 +1,8 @@
 menu "System"
 
     rsource "launch/Kconfig.in"
+    rsource "sys_threadpool/Kconfig.in"
     # rsource "power/Kconfig.in"
-    # rsource "littlefs/Kconfig.in"
+    rsource "lot_littlefs/Kconfig.in"
 
 endmenu

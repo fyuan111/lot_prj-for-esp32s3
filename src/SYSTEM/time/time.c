@@ -61,3 +61,10 @@ lot_time_t lot_time(void)
 {
     return lot_time_atomic_load(&g_lot_time);
 }
+
+esp_err_t lot_time_main(void)
+{
+    return lot_time_init();
+}
+
+launch(0, lot_time_main);

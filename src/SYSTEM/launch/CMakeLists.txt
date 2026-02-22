@@ -1,3 +1,1 @@
-idf_component_register(SRCS "launch.c"
-                       INCLUDE_DIRS ".")
-
+idf_component_register(INCLUDE_DIRS ".")
