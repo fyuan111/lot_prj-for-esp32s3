@@ -33,6 +33,16 @@ jobs:
           idf.py --version
           idf.py set-target esp32s3
           idf.py reconfigure
+
+          # Workaround: esp_websocket_client 1.6.1 may call redirect URI API
+          # that is not visible in some IDF 5.5 CI header combos.
+          WS_FILE="managed_components/espressif__esp_websocket_client/esp_websocket_client.c"
+          if [ -f "$WS_FILE" ]; then
+            if grep -q "WS_TRANSPORT_REDIRECT_HEADER_SUPPORT" "$WS_FILE"; then
+              sed -i '/WS_TRANSPORT_REDIRECT_HEADER_SUPPORT/a #undef WS_TRANSPORT_REDIRECT_HEADER_SUPPORT\n#define WS_TRANSPORT_REDIRECT_HEADER_SUPPORT    0' "$WS_FILE"
+            fi
+          fi
+
           idf.py build
 
       - name: Run Tests (pytest)
