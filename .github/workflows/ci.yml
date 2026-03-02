@@ -16,12 +16,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Fix git safe directory
+        shell: bash
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: ESP-IDF Build (esp32s3)
         shell: bash
         run: |
           set -euo pipefail
+          if [ -f /opt/esp/idf/export.sh ]; then
+            . /opt/esp/idf/export.sh
+          elif [ -f /opt/esp/export.sh ]; then
+            . /opt/esp/export.sh
+          fi
+          command -v idf.py
           idf.py --version
           idf.py set-target esp32s3
+          idf.py reconfigure
           idf.py build
 
       - name: Prepare Artifacts
