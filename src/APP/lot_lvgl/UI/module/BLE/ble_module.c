@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 
-#include "esp_bt.h"
 #include "esp_err.h"
 #include "lot_ble.h"
 
@@ -13,28 +12,15 @@ typedef struct {
 
 static bool ble_enabled_now(void)
 {
-#if CONFIG_BT_ENABLED
-    return esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED;
-#else
-    return false;
-#endif
+    return lot_ble_is_enabled();
 }
 
 static esp_err_t ble_set_enabled(bool en)
 {
-#if !CONFIG_BT_ENABLED
-    (void)en;
-    return ESP_ERR_NOT_SUPPORTED;
-#else
     if (en) {
         return lot_ble_init();
     }
-    esp_err_t ret = esp_bt_controller_disable();
-    if (ret == ESP_ERR_INVALID_STATE) {
-        ret = ESP_OK;
-    }
-    return ret;
-#endif
+    return ESP_ERR_NOT_SUPPORTED;
 }
 
 static void ble_switch_cb(lv_event_t *e)
@@ -70,25 +56,7 @@ static void ble_btn_cb(lv_event_t *e)
     }
 
     static char msg[64];
-#if CONFIG_BT_ENABLED
-    esp_bt_controller_status_t st = esp_bt_controller_get_status();
-    switch (st) {
-    case ESP_BT_CONTROLLER_STATUS_IDLE:
-        snprintf(msg, sizeof(msg), "BLE: IDLE");
-        break;
-    case ESP_BT_CONTROLLER_STATUS_INITED:
-        snprintf(msg, sizeof(msg), "BLE: INITED");
-        break;
-    case ESP_BT_CONTROLLER_STATUS_ENABLED:
-        snprintf(msg, sizeof(msg), "BLE: ENABLED");
-        break;
-    default:
-        snprintf(msg, sizeof(msg), "BLE: UNKNOWN(%d)", (int)st);
-        break;
-    }
-#else
-    snprintf(msg, sizeof(msg), "BLE disabled");
-#endif
+    snprintf(msg, sizeof(msg), "BLE: %s", ble_enabled_now() ? "ENABLED" : "DISABLED");
     ctx->open_page_cb("Bluetooth", msg);
 
     lv_obj_t *body = settings_panel_get_subpage_body();

@@ -243,4 +243,13 @@ esp_err_t lot_ble_main(void)
     return lot_ble_init();
 }
 
+bool lot_ble_is_enabled(void)
+{
+#if CONFIG_LOT_BLE_ENABLE && CONFIG_BT_ENABLED && CONFIG_BT_NIMBLE_ENABLED
+    return s_ble_started;
+#else
+    return false;
+#endif
+}
+
 launch(30, lot_ble_main);
