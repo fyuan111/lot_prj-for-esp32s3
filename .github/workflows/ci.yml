@@ -35,6 +35,14 @@ jobs:
           idf.py reconfigure
           idf.py build
 
+      - name: Run Tests (pytest)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pytest
+          pytest
+
       - name: Prepare Artifacts
         shell: bash
         run: |
