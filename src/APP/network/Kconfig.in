@@ -1,0 +1,88 @@
+menu "Network"
+
+config LOT_NETWORK_ENABLE
+    bool "Enable network protocol app"
+    default y
+    help
+        Start application-layer network protocol client after Wi-Fi is up.
+
+choice LOT_NETWORK_PROTOCOL
+    prompt "Protocol"
+    depends on LOT_NETWORK_ENABLE
+    default LOT_NETWORK_PROTOCOL_MQTT
+
+config LOT_NETWORK_PROTOCOL_MQTT
+    bool "MQTT"
+
+config LOT_NETWORK_PROTOCOL_WEBSOCKET
+    bool "WebSocket"
+
+endchoice
+
+config LOT_NETWORK_LAUNCH_PRIORITY
+    int "Launch priority (APP local)"
+    depends on LOT_NETWORK_ENABLE
+    range 0 99
+    default 40
+
+if LOT_NETWORK_PROTOCOL_MQTT
+
+config LOT_MQTT_DEVICE_ID
+    hex "Device ID (uint32, hex)"
+    default 0x00000001
+    help
+        Unique device identifier embedded in every uplink frame.
+
+config LOT_MQTT_PAYLOAD_PROTO
+    bool "Use protobuf (nanopb) payload instead of JSON"
+    default n
+    help
+        When enabled, status reports are encoded with Protocol Buffers
+        (nanopb) instead of cJSON. Reduces payload size by ~60-70%.
+        Requires the proto component and nanopb dependency.
+
+config LOT_MQTT_BROKER_URI
+    string "MQTT broker URI"
+    default "mqtt://broker.emqx.io"
+
+config LOT_MQTT_CLIENT_ID
+    string "MQTT client id"
+    default "lot_esp32s3"
+
+config LOT_MQTT_SUB_TOPIC
+    string "MQTT subscribe topic"
+    default "lot/esp32s3/down"
+
+config LOT_MQTT_PUB_TOPIC
+    string "MQTT publish topic"
+    default "lot/esp32s3/up"
+
+config LOT_MQTT_REPORT_INTERVAL_SEC
+    int "Status report interval (seconds)"
+    default 30
+    range 5 3600
+    help
+        How often the device publishes a status JSON to PUB_TOPIC.
+        Fields: uptime, heap_free, heap_min, rssi, version.
+
+endif
+
+if LOT_NETWORK_PROTOCOL_WEBSOCKET
+
+config LOT_WS_URI
+    string "WebSocket server URI"
+    default "ws://echo.websocket.events"
+
+config LOT_WS_RECONNECT_TIMEOUT_MS
+    int "WebSocket reconnect timeout (ms)"
+    range 1000 60000
+    default 5000
+
+config LOT_WS_NETWORK_TIMEOUT_MS
+    int "WebSocket network timeout (ms)"
+    range 1000 60000
+    default 10000
+
+endif
+
+endmenu

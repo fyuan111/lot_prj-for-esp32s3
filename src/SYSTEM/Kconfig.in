@@ -1,8 +1,10 @@
 menu "System"
 
-    rsource "launch/Kconfig.in"
+    rsource "devinfo/Kconfig.in"
+    rsource "version/Kconfig.in"
     rsource "sys_threadpool/Kconfig.in"
-    # rsource "power/Kconfig.in"
+    rsource "power/Kconfig.in"
+    rsource "ntp/Kconfig.in"
     rsource "lot_littlefs/Kconfig.in"
 
 endmenu

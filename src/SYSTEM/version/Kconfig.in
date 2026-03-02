@@ -1,0 +1,9 @@
+menu "Version"
+
+config LOT_PROJECT_VERSION
+    string "Project version"
+    default "1.0.0"
+    help
+        Version string used by LOT modules (OTA/version check).
+
+endmenu

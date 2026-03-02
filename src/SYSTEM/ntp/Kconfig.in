@@ -1,0 +1,31 @@
+menu "NTP"
+
+config LOT_NTP_ENABLE
+    bool "Enable NTP sync"
+    default y
+    help
+        Sync wall-clock time from NTP server during startup.
+
+config LOT_NTP_SERVER
+    string "NTP server"
+    depends on LOT_NTP_ENABLE
+    default "ntp.aliyun.com"
+    help
+        NTP hostname used for initial time synchronization.
+
+config LOT_NTP_SYNC_TIMEOUT_SEC
+    int "NTP sync timeout (sec)"
+    depends on LOT_NTP_ENABLE
+    range 3 120
+    default 20
+    help
+        Timeout waiting for initial NTP time.
+
+config LOT_NTP_SET_BJ_TZ
+    bool "Use Beijing timezone (UTC+8)"
+    depends on LOT_NTP_ENABLE
+    default y
+    help
+        Set timezone to Asia/Shanghai after sync.
+
+endmenu

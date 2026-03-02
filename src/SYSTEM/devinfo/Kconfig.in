@@ -1,0 +1,12 @@
+menu "Devinfo"
+
+config LOT_DEVINFO_ENABLE
+    bool "Enable device info module"
+    default y
+
+config LOT_DEVINFO_IDLE_LOAD
+    bool "Enable CPU load estimation via idle hook"
+    depends on LOT_DEVINFO_ENABLE
+    default y
+
+endmenu

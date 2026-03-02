@@ -12,24 +12,38 @@ config LOT_WIFI_PASSWORD
     help
         Wi-Fi password for STA mode.
 
-config LOT_WIFI_MAX_RETRY
-    int "Wi-Fi max retry count"
-    range 1 50
-    default 10
+config LOT_WIFI_BACKOFF_MAX_SEC
+    int "Wi-Fi reconnect backoff max (sec)"
+    range 10 300
+    default 60
     help
-        Maximum retries before Wi-Fi connect is treated as failed.
+        Maximum backoff interval for reconnect retries.
+        Backoff doubles each attempt: 1s -> 2s -> 4s -> ... -> max.
 
 config LOT_WIFI_CONNECT_TIMEOUT_MS
     int "Wi-Fi connect timeout (ms)"
     range 1000 120000
     default 20000
     help
-        Timeout for waiting connection in app_main.
+        Timeout for waiting initial connection at boot.
 
 config LOT_WIFI_POWERSAVE
     bool "Enable Wi-Fi power save mode"
     default n
     help
         Enable WIFI_PS_MIN_MODEM after station start.
+
+config LOT_WIFI_FORCE_DNS
+    bool "Force custom DNS after got IP"
+    default n
+    help
+        Override DHCP DNS with CONFIG_LOT_WIFI_DNS_SERVER.
+
+config LOT_WIFI_DNS_SERVER
+    string "Custom DNS server"
+    depends on LOT_WIFI_FORCE_DNS
+    default "8.8.8.8"
+    help
+        IPv4 DNS server address, e.g. 8.8.8.8 or 1.1.1.1.
 
 endmenu

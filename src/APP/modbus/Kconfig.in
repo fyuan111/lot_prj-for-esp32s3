@@ -1,0 +1,109 @@
+menu "Modbus RTU Master"
+
+config LOT_MODBUS_ENABLE
+    bool "Enable Modbus RTU master"
+    default n
+    help
+        Enables a FreeRTOS polling task that reads Modbus holding registers
+        (FC03) over UART/RS485 and exposes them as sensor snapshots for
+        proto uplink.
+
+if LOT_MODBUS_ENABLE
+
+config LOT_MODBUS_UART_PORT
+    int "UART port number (0/1/2)"
+    range 0 2
+    default 1
+
+config LOT_MODBUS_TX_PIN
+    int "TX GPIO"
+    range 0 48
+    default 17
+
+config LOT_MODBUS_RX_PIN
+    int "RX GPIO"
+    range 0 48
+    default 18
+
+config LOT_MODBUS_DE_PIN
+    int "DE/RE GPIO for RS485 direction control (-1 = not used)"
+    range -1 48
+    default -1
+    help
+        Drive high before sending, low before receiving.
+        Set to -1 if the transceiver uses auto-direction or is UART-only.
+
+config LOT_MODBUS_BAUD
+    int "Baud rate"
+    default 9600
+
+config LOT_MODBUS_POLL_MS
+    int "Poll interval (ms)"
+    range 100 60000
+    default 1000
+
+config LOT_MODBUS_CH_COUNT
+    int "Number of channels to poll (1-2)"
+    range 1 2
+    default 2
+
+comment "--- Channel 0 ---"
+
+config LOT_MODBUS_CH0_SLAVE_ID
+    int "Channel 0: slave ID"
+    range 1 247
+    default 1
+
+config LOT_MODBUS_CH0_REG_ADDR
+    hex "Channel 0: holding register address"
+    default 0x0000
+
+config LOT_MODBUS_CH0_SCALE_X100
+    int "Channel 0: scale * 100  (10 = ×0.1 | 100 = ×1.0 | 1000 = ×10.0)"
+    range 1 100000
+    default 100
+
+config LOT_MODBUS_CH0_ALARM_HI
+    int "Channel 0: high-alarm threshold (raw register value, 0 = off)"
+    range 0 65535
+    default 0
+
+config LOT_MODBUS_CH0_ALARM_LO
+    int "Channel 0: low-alarm threshold (raw register value, 0 = off)"
+    range 0 65535
+    default 0
+
+comment "--- Channel 1 ---"
+
+config LOT_MODBUS_CH1_SLAVE_ID
+    int "Channel 1: slave ID"
+    depends on LOT_MODBUS_CH_COUNT >= 2
+    range 1 247
+    default 1
+
+config LOT_MODBUS_CH1_REG_ADDR
+    hex "Channel 1: holding register address"
+    depends on LOT_MODBUS_CH_COUNT >= 2
+    default 0x0001
+
+config LOT_MODBUS_CH1_SCALE_X100
+    int "Channel 1: scale * 100"
+    depends on LOT_MODBUS_CH_COUNT >= 2
+    range 1 100000
+    default 100
+
+config LOT_MODBUS_CH1_ALARM_HI
+    int "Channel 1: high-alarm threshold (raw register value, 0 = off)"
+    depends on LOT_MODBUS_CH_COUNT >= 2
+    range 0 65535
+    default 0
+
+config LOT_MODBUS_CH1_ALARM_LO
+    int "Channel 1: low-alarm threshold (raw register value, 0 = off)"
+    depends on LOT_MODBUS_CH_COUNT >= 2
+    range 0 65535
+    default 0
+
+endif # LOT_MODBUS_ENABLE
+
+endmenu

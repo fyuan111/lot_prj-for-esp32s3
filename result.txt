@@ -1,0 +1,18 @@
+ESP32-S3 低功耗手持智能终端 | ESP-IDF · FreeRTOS · LVGL · NimBLE · CMake
+
+独立完成一款低功耗手持智能终端的全栈嵌入式软件开发，
+支持触摸屏 GUI、Wi-Fi/BLE 通信、空中升级与多级睡眠管理。
+
+• 驱动与低功耗：移植 ILI9341（SPI DMA）+ XPT2046（中断模式，ISR 任务通知），LEDC PWM 背光调节；
+  发布-订阅电源事件模型，外设自动跟随 Light/Deep-sleep；GUI 空闲降频至 1Hz，CPU 占用降低约 70%
+• 触控 GUI：基于 LVGL 实现多页面 UI，手势识别状态机（Tap/Double-tap/Long-press/四向 Swipe），
+  刷新率动态范围 1~33Hz，支持事件驱动与周期刷新双模式
+• OTA 与连网：HTTPS 双分区滚动升级，启动自检（Wi-Fi + 堆内存），失败自动回滚；
+  Wi-Fi 指数退避重连，断线自动触发 NTP 重同步
+• 工程架构：设计 CMake 声明式初始化框架（launch 宏自注册、构建期排序生成调用序列）；
+  FreeRTOS 线程池统一调度非关键任务，避免多模块各自建任务导致栈资源膨胀
+
+
+
+
+

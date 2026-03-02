@@ -1,5 +1,0 @@
-menu "Launch"
-
-comment "Compile-time launch scan is enabled (no runtime launch table)."
-
-endmenu

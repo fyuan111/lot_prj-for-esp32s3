@@ -77,6 +77,12 @@ foreach(_entry ${LOT_LAUNCH_ENTRIES})
 endforeach()
 file(APPEND "${LOT_AUTOGEN_C}" "    return ESP_OK;\n}\n")
 
+# Keep OTA version endpoint source in sync with project version.
+# After each CMake configure (triggered by build when needed),
+# this writes build/version.txt from Kconfig value.
+set(LOT_VERSION_TXT "${PROJECT_DIR}/build/version.txt")
+file(WRITE "${LOT_VERSION_TXT}" "${CONFIG_LOT_PROJECT_VERSION}\n")
+
 idf_component_register(SRCS "main.c" "${LOT_AUTOGEN_C}"
                        INCLUDE_DIRS "." "${CMAKE_CURRENT_BINARY_DIR}"
-                       REQUIRES nvs_flash wifi ota lcd lot_lvgl time)
+                       REQUIRES nvs_flash wifi ota lcd lot_lvgl time ntp)

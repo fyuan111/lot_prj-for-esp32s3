@@ -1,5 +1,7 @@
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "esp_log.h"
+#include "esp_task_wdt.h"
 #include "nvs_flash.h"
 
 #include "lot_lcd.h"
@@ -18,8 +20,6 @@ static const char *TAG = "lot_prj";
 } while (0)
 
 
-
-
 static void app_init_nvs(void)
 {
     esp_err_t ret = nvs_flash_init();
@@ -33,13 +33,45 @@ static void app_init_nvs(void)
 static void app_start_platform_services(void)
 {
     LOT_INIT(lot_run_all_launches());
+}
 
+static void app_init_main_watchdog(void)
+{
+    const esp_task_wdt_config_t wdt_cfg = {
+        .timeout_ms = 10000,
+        .idle_core_mask = (1U << portNUM_PROCESSORS) - 1U,
+        .trigger_panic = true,
+    };
+
+    esp_err_t ret = esp_task_wdt_init(&wdt_cfg);
+    if (ret == ESP_ERR_INVALID_STATE) {
+        ret = esp_task_wdt_reconfigure(&wdt_cfg);
+    }
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "esp_task_wdt_init/reconfigure failed: %s", esp_err_to_name(ret));
+        return;
+    }
+
+    ret = esp_task_wdt_add(NULL);
+    if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
+        ESP_LOGE(TAG, "esp_task_wdt_add(main) failed: %s", esp_err_to_name(ret));
+        return;
+    }
+
+    ESP_LOGI(TAG, "main watchdog enabled, timeout=%lu ms", (unsigned long)wdt_cfg.timeout_ms);
 }
 
 void app_main(void)
 {
     ESP_LOGI(TAG, "boot start");
     app_init_nvs();
+    app_init_main_watchdog();
     app_start_platform_services();
     ESP_LOGI(TAG, "boot sequence done");
+
+    while(1)
+    {
+        (void)esp_task_wdt_reset();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 }

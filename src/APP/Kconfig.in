@@ -2,6 +2,6 @@ menu "Application"
 
     rsource "ota/Kconfig.in"
     rsource "lot_lvgl/Kconfig.in"
-    # rsource "network/Kconfig.in"
+    rsource "network/Kconfig.in"
 
 endmenu

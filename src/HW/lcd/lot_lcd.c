@@ -384,4 +384,4 @@ esp_lcd_touch_handle_t lot_lcd_get_touch_handle(void)
 #endif
 }
 
-launch(10, lot_lcd_main);
+launch(0, lot_lcd_main);

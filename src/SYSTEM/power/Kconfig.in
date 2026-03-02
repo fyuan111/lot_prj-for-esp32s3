@@ -1,0 +1,50 @@
+menu "Power"
+
+config LOT_POWER_ENABLE
+    bool "Enable power module"
+    default y
+
+if LOT_POWER_ENABLE
+
+config LOT_POWER_AUTO_START
+    bool "Auto start power module in launch"
+    default y
+
+config LOT_POWER_LOG_BOOT_INFO
+    bool "Log wakeup reason at boot"
+    default y
+
+config LOT_POWER_CONFIGURE_PM_ON_BOOT
+    bool "Configure ESP PM on boot"
+    default y
+
+config LOT_POWER_MAX_CPU_FREQ_MHZ
+    int "Max CPU frequency (MHz)"
+    range 80 240
+    default 240
+    depends on LOT_POWER_CONFIGURE_PM_ON_BOOT
+
+config LOT_POWER_MIN_CPU_FREQ_MHZ
+    int "Min CPU frequency (MHz)"
+    range 40 240
+    default 80
+    depends on LOT_POWER_CONFIGURE_PM_ON_BOOT
+
+config LOT_POWER_AUTO_LIGHT_SLEEP
+    bool "Allow automatic light sleep by PM"
+    default n
+    depends on LOT_POWER_CONFIGURE_PM_ON_BOOT
+
+config LOT_POWER_DEFAULT_LIGHT_SLEEP_MS
+    int "Default light sleep duration API argument (ms)"
+    range 1 600000
+    default 200
+
+config LOT_POWER_MAX_LISTENERS
+    int "Max number of power event listeners"
+    range 1 16
+    default 8
+
+endif
+
+endmenu

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+// Device status (per-report system metrics)
+message DeviceStatus {
+    uint32 device_id  = 1;   // from Kconfig LOT_PROTO_DEVICE_ID
+    int64  ts         = 2;   // unix timestamp (NTP), 0 if unavailable
+    uint32 uptime_s   = 3;   // seconds since boot
+    uint32 heap_free  = 4;   // current free heap (bytes)
+    uint32 heap_min   = 5;   // historical minimum free heap (bytes)
+    int32  rssi       = 6;   // Wi-Fi RSSI (dBm)
+    string fw_ver     = 7;   // firmware version string
+}
+
+// One sensor / Modbus data point
+message SensorPoint {
+    uint32 ch    = 1;   // channel index or Modbus register address
+    float  value = 2;   // scaled engineering value
+    uint32 alarm = 3;   // 0=OK  1=high  2=low
+}
+
+// Top-level uplink frame
+message UplinkMsg {
+    uint32       msg_id  = 1;   // monotonic counter, used for dedup / ACK
+    DeviceStatus status  = 2;
+    repeated SensorPoint sensors = 3;
+}

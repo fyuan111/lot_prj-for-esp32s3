@@ -1,0 +1,5 @@
+# nanopb per-field constraints
+# Keep static allocations small enough for ESP32-S3 stack/heap.
+
+DeviceStatus.fw_ver     max_size:16
+UplinkMsg.sensors       max_count:8

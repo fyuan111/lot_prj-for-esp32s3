@@ -49,6 +49,8 @@ extern lot_time_atomic_t g_lot_time;
 esp_err_t lot_time_main(void);
 esp_err_t lot_time_init(void);
 lot_time_t lot_time(void);
+void lot_time_set(lot_time_t t);
+void lot_time_sync_from_system_clock(void);
 
 static inline uint32_t lot_time_pack(lot_time_t t)
 {
