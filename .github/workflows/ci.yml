@@ -45,13 +45,31 @@ jobs:
 
           idf.py build
 
-      - name: Run Tests (pytest)
+      - name: Run Tests (stdlib)
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m pip install --upgrade pip
-          python3 -m pip install pytest
-          pytest
+          python3 - <<'PY'
+          import importlib.util
+          from pathlib import Path
+
+          root = Path(".").resolve()
+          tests = [
+              root / "tests" / "test_partitions.py",
+              root / "tests" / "test_version_file.py",
+          ]
+
+          for test_file in tests:
+              spec = importlib.util.spec_from_file_location(test_file.stem, test_file)
+              mod = importlib.util.module_from_spec(spec)
+              assert spec.loader is not None
+              spec.loader.exec_module(mod)
+              for name in dir(mod):
+                  if name.startswith("test_") and callable(getattr(mod, name)):
+                      print(f"[TEST] {test_file.name}::{name}")
+                      getattr(mod, name)()
+          print("[TEST] all passed")
+          PY
 
       - name: Prepare Artifacts
         shell: bash
