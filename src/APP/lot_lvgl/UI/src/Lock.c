@@ -19,6 +19,27 @@ static uint8_t s_pin_len = 0;
 
 static const uint8_t s_pin_code[LOCK_PIN_LEN] = {1, 2, 3, 4, 5, 6};
 
+static const lv_font_t *lock_time_font_get(void)
+{
+#if defined(LV_FONT_MONTSERRAT_48) && LV_FONT_MONTSERRAT_48
+    return &lv_font_montserrat_48;
+#elif defined(LV_FONT_MONTSERRAT_40) && LV_FONT_MONTSERRAT_40
+    return &lv_font_montserrat_40;
+#elif defined(LV_FONT_MONTSERRAT_36) && LV_FONT_MONTSERRAT_36
+    return &lv_font_montserrat_36;
+#elif defined(LV_FONT_MONTSERRAT_32) && LV_FONT_MONTSERRAT_32
+    return &lv_font_montserrat_32;
+#elif defined(LV_FONT_MONTSERRAT_28) && LV_FONT_MONTSERRAT_28
+    return &lv_font_montserrat_28;
+#elif defined(LV_FONT_MONTSERRAT_24) && LV_FONT_MONTSERRAT_24
+    return &lv_font_montserrat_24;
+#elif defined(LV_FONT_MONTSERRAT_20) && LV_FONT_MONTSERRAT_20
+    return &lv_font_montserrat_20;
+#else
+    return LV_FONT_DEFAULT;
+#endif
+}
+
 static void lock_update_time(void)
 {
     if (s_time_label == NULL) {
@@ -140,7 +161,7 @@ void homepage_show(void)
     lv_obj_clean(screen);
 
     s_time_label = lv_label_create(screen);
-    lv_obj_set_style_text_font(s_time_label, &lv_font_montserrat_48, LV_PART_MAIN);
+    lv_obj_set_style_text_font(s_time_label, lock_time_font_get(), LV_PART_MAIN);
     lv_obj_set_style_text_color(s_time_label, lv_color_hex(0x101010), LV_PART_MAIN);
     lv_obj_align(s_time_label, LV_ALIGN_CENTER, 0, -62);
     lock_update_time();
